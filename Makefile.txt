@@ -1,0 +1,63 @@
+#!/bin/bash
+CC = gcc
+OBJS = mtm_cm.o Manager.o Student.o Friend.o Grade.o
+CFLAGS = -std=c99 -Wall -pedantic-errors -Werror -DNDEBUG -L. -lmtm
+EXEC = mtm_cm Manager_test Student_test Grade_test Friend_test List_mtm_test
+
+#main makefile
+mtm_cm: Manager.o Student.o mtm_cm.o Grade.o Friend.o
+	$(CC) $(CFLAGS) Manager.o Student.o mtm_cm.o Grade.o Friend.o libmtm.a -o $@
+	
+	
+mtm_cm.o : mtm_cm.c mtm_ex3.h Manager.h Grade.h Student.h list.h
+	$(CC)  -o mtm_cm.o $(CFLAGS) -c mtm_cm.c 
+Manager.o: Manager.c Manager.h Grade.h Student.h list.h set.h Friend.h mtm_ex3.h
+	$(CC)  -o Manager.o $(CFLAGS) -c Manager.c 
+Student.o : Student.c Student.h list.h Grade.h Friend.h set.h mtm_ex3.h
+	$(CC)  -o Student.o $(CFLAGS) -c Student.c 
+Friend.o : Friend.c Student.h list.h Grade.h set.h mtm_ex3.h Friend.h
+	$(CC)  -o Friend.o $(CFLAGS) -c Friend.c 
+Grade.o : Grade.c Grade.h
+	$(CC)  -o Grade.o $(CFLAGS) -c Grade.c 
+
+	
+	
+#tests makefile
+
+tests: Manager_test Student_test Friend_test Grade_test List_mtm_test
+
+Manager_test : Manager_test.o
+	$(CC) -o Manager_test $(CFLAGS) Manager.o Student.o Friend.o Grade.o Manager_test.o libmtm.a
+Manager_test.o : tests/Manager_test.c tests/test_utilities.h Student.h list.h \
+Grade.h Friend.h Manager.h Student.h
+	$(CC)  -o Manager_test.o $(CFLAGS) -c tests/Manager_test.c  
+
+Student_test : Student_test.o
+	$(CC) -o Student_test $(CFLAGS)  Student.o Friend.o Grade.o Student_test.o libmtm.a
+Student_test.o: tests/Student_test.c tests/test_utilities.h Student.h list.h \
+ Grade.h Friend.h mtm_ex3.h
+	$(CC)  -o Student_test.o $(CFLAGS) -c tests/Student_test.c  
+	
+Grade_test : Grade_test.o
+	$(CC) -o Grade_test $(CFLAGS)  Grade.o Grade_test.o libmtm.a
+Grade_test.o: tests/Grade_test.c Manager.h Grade.h Student.h list.h \
+ set.h list.h Student.h Friend.h Grade.h tests/test_utilities.h
+	$(CC)  -o Grade_test.o $(CFLAGS) -c tests/Grade_test.c  
+
+Friend_test : Friend_test.o
+	$(CC) -o Friend_test $(CFLAGS)  Friend.o Grade.o Student.o Friend_test.o libmtm.a
+Friend_test.o: tests/Friend_test.c tests/test_utilities.h Student.h list.h \
+Grade.h Friend.h
+	$(CC)  -o Friend_test.o $(CFLAGS) -c tests/Friend_test.c  	
+
+list_mtm.o: list_mtm/list_mtm.c list_mtm/list_mtm.h
+	$(CC)  -o list_mtm.o $(CFLAGS) -c list_mtm/list_mtm.c 
+List_mtm_test : List_mtm_test.o list_mtm.o
+	$(CC) -o List_mtm_test $(CFLAGS)  list_mtm.o List_mtm_test.o libmtm.a
+List_mtm_test.o: tests/List_mtm_test.c list_mtm/list_mtm.h tests/test_utilities.h
+	$(CC)  -o List_mtm_test.o $(CFLAGS) -c tests/List_mtm_test.c 
+
+	
+#clean
+clean:
+	rm -f $(OBJS) $(EXEC)
